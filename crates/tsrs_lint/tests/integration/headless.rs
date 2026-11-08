@@ -1,3 +1,4 @@
+use std::borrow::Borrow;
 use std::fmt::Write as _;
 use std::io::Write;
 use std::process::{Command, Stdio};
@@ -38,6 +39,49 @@ fn run_raw_with_env(input: &str, flags: &[&str], env: &[(&str, &str)]) -> (i32, 
         bytes = &bytes[5 + len..];
     }
     (output.status.code().unwrap(), frames)
+}
+
+/// Runs `payload` with each combination of the fix flags and asserts that every file in `expected_by_file` gets
+/// exactly its diagnostics, in order and with `file_path` filled in, and that nothing else is reported. With
+/// `suggestions_need_flag`, runs without `-fix-suggestions` expect no `suggestions`. Returns the diagnostic count.
+fn assert_diagnostics_by_file(
+    payload: &Value,
+    expected_by_file: &[(String, impl Borrow<Value>)],
+    suggestions_need_flag: bool,
+) -> usize {
+    let mut count = 0;
+    for flags in [&[][..], &["-fix"], &["-fix-suggestions"], &["-fix", "-fix-suggestions"]] {
+        let (status, frames) = run(payload, flags);
+        assert_eq!(status, 0, "{flags:?}: {frames:?}");
+        count = 0;
+        for (file, expected) in expected_by_file {
+            let Value::Array(expected) = expected.borrow() else { panic!() };
+            count += expected.len();
+            let actual: Vec<_> = frames
+                .iter()
+                .filter_map(|(kind, value)| {
+                    assert_eq!(*kind, protocol::MessageType::Diagnostic as u8);
+                    let Value::Object(diagnostic) = value else { panic!() };
+                    (diagnostic["file_path"] == Value::String(file.clone()))
+                        .then_some(value.clone())
+                })
+                .collect();
+            let expected: Vec<_> = expected
+                .iter()
+                .map(|value| {
+                    let Value::Object(mut diagnostic) = value.clone() else { panic!() };
+                    diagnostic.insert("file_path", Value::String(file.clone()));
+                    if suggestions_need_flag && !flags.contains(&"-fix-suggestions") {
+                        diagnostic.shift_remove("suggestions");
+                    }
+                    Value::Object(diagnostic)
+                })
+                .collect();
+            assert_eq!(actual, expected, "{flags:?}: {file}");
+        }
+        assert_eq!(frames.len(), count, "{flags:?}: {frames:?}");
+    }
+    count
 }
 
 #[test]
@@ -162,35 +206,7 @@ fn strict_boolean_expressions_preserves_utf8_options_predicates_state_and_flags(
         ("configs", Value::Array(configs)),
         ("source_overrides", Value::Object(overrides)),
     ]);
-    for flags in [vec![], vec!["-fix"], vec!["-fix-suggestions"], vec!["-fix", "-fix-suggestions"]]
-    {
-        let (status, frames) = run(&payload, &flags);
-        assert_eq!(status, 0, "{flags:?}: {frames:?}");
-        let mut count = 0;
-        for (file, expected) in &expected_by_file {
-            let Value::Array(expected) = expected else { panic!() };
-            count += expected.len();
-            let actual: Vec<_> = frames
-                .iter()
-                .filter_map(|(kind, value)| {
-                    assert_eq!(*kind, protocol::MessageType::Diagnostic as u8);
-                    let Value::Object(diagnostic) = value else { panic!() };
-                    (diagnostic["file_path"] == Value::String(file.clone()))
-                        .then_some(value.clone())
-                })
-                .collect();
-            let expected: Vec<_> = expected
-                .iter()
-                .map(|value| {
-                    let Value::Object(mut diagnostic) = value.clone() else { panic!() };
-                    diagnostic.insert("file_path", Value::String(file.clone()));
-                    Value::Object(diagnostic)
-                })
-                .collect();
-            assert_eq!(actual, expected, "{flags:?}: {file}");
-        }
-        assert_eq!(frames.len(), count, "{flags:?}: {frames:?}");
-    }
+    assert_diagnostics_by_file(&payload, &expected_by_file, false);
 }
 
 #[test]
@@ -234,35 +250,7 @@ fn related_getter_setter_pairs_preserves_names_order_utf8_options_and_flags() {
         ("configs", Value::Array(configs)),
         ("source_overrides", Value::Object(overrides)),
     ]);
-    for flags in [vec![], vec!["-fix"], vec!["-fix-suggestions"], vec!["-fix", "-fix-suggestions"]]
-    {
-        let (status, frames) = run(&payload, &flags);
-        assert_eq!(status, 0, "{flags:?}: {frames:?}");
-        let mut count = 0;
-        for (file, expected) in &expected_by_file {
-            let Value::Array(expected) = expected else { panic!() };
-            count += expected.len();
-            let actual: Vec<_> = frames
-                .iter()
-                .filter_map(|(kind, value)| {
-                    assert_eq!(*kind, protocol::MessageType::Diagnostic as u8);
-                    let Value::Object(diagnostic) = value else { panic!() };
-                    (diagnostic["file_path"] == Value::String(file.clone()))
-                        .then_some(value.clone())
-                })
-                .collect();
-            let expected: Vec<_> = expected
-                .iter()
-                .map(|value| {
-                    let Value::Object(mut diagnostic) = value.clone() else { panic!() };
-                    diagnostic.insert("file_path", Value::String(file.clone()));
-                    Value::Object(diagnostic)
-                })
-                .collect();
-            assert_eq!(actual, expected, "{flags:?}: {file}");
-        }
-        assert_eq!(frames.len(), count, "{flags:?}: {frames:?}");
-    }
+    assert_diagnostics_by_file(&payload, &expected_by_file, false);
 }
 
 #[test]
@@ -309,35 +297,7 @@ fn unbound_method_preserves_utf8_labels_bindings_options_and_flags() {
         ("configs", Value::Array(configs)),
         ("source_overrides", Value::Object(overrides)),
     ]);
-    for flags in [vec![], vec!["-fix"], vec!["-fix-suggestions"], vec!["-fix", "-fix-suggestions"]]
-    {
-        let (status, frames) = run(&payload, &flags);
-        assert_eq!(status, 0, "{flags:?}: {frames:?}");
-        let mut count = 0;
-        for (file, expected) in &expected_by_file {
-            let Value::Array(expected) = expected else { panic!() };
-            count += expected.len();
-            let actual: Vec<_> = frames
-                .iter()
-                .filter_map(|(kind, value)| {
-                    assert_eq!(*kind, protocol::MessageType::Diagnostic as u8);
-                    let Value::Object(diagnostic) = value else { panic!() };
-                    (diagnostic["file_path"] == Value::String(file.clone()))
-                        .then_some(value.clone())
-                })
-                .collect();
-            let expected: Vec<_> = expected
-                .iter()
-                .map(|value| {
-                    let Value::Object(mut diagnostic) = value.clone() else { panic!() };
-                    diagnostic.insert("file_path", Value::String(file.clone()));
-                    Value::Object(diagnostic)
-                })
-                .collect();
-            assert_eq!(actual, expected, "{flags:?}: {file}");
-        }
-        assert_eq!(frames.len(), count, "{flags:?}: {frames:?}");
-    }
+    assert_diagnostics_by_file(&payload, &expected_by_file, false);
 }
 
 #[test]
@@ -448,39 +408,7 @@ fn catch_callback_unknown_preserves_utf8_options_branches_constraints_and_sugges
         ("configs", Value::Array(configs)),
         ("source_overrides", Value::Object(overrides)),
     ]);
-    for flags in [vec![], vec!["-fix"], vec!["-fix-suggestions"], vec!["-fix", "-fix-suggestions"]]
-    {
-        let (status, frames) = run(&payload, &flags);
-        assert_eq!(status, 0, "{flags:?}: {frames:?}");
-        let mut count = 0;
-        for (file, expected) in &expected_by_file {
-            let Value::Array(expected) = expected else { panic!() };
-            count += expected.len();
-            let actual: Vec<_> = frames
-                .iter()
-                .filter_map(|(kind, value)| {
-                    assert_eq!(*kind, protocol::MessageType::Diagnostic as u8);
-                    let Value::Object(diagnostic) = value else { panic!() };
-                    (diagnostic["file_path"] == Value::String(file.clone()))
-                        .then_some(value.clone())
-                })
-                .collect();
-            let expected: Vec<_> = expected
-                .iter()
-                .map(|value| {
-                    let Value::Object(mut diagnostic) = value.clone() else { panic!() };
-                    diagnostic.insert("file_path", Value::String(file.clone()));
-                    if !flags.contains(&"-fix-suggestions") {
-                        diagnostic.shift_remove("suggestions");
-                    }
-                    Value::Object(diagnostic)
-                })
-                .collect();
-            assert_eq!(actual, expected, "{flags:?}: {file}");
-        }
-        assert_eq!(count, 19);
-        assert_eq!(frames.len(), count, "{flags:?}: {frames:?}");
-    }
+    assert_eq!(assert_diagnostics_by_file(&payload, &expected_by_file, true), 19);
 }
 
 #[test]
@@ -529,35 +457,7 @@ fn require_array_sort_compare_preserves_utf8_constraints_per_file_options_and_fl
         ("configs", Value::Array(configs)),
         ("source_overrides", Value::Object(overrides.into_iter().collect())),
     ]);
-    for flags in [vec![], vec!["-fix"], vec!["-fix-suggestions"], vec!["-fix", "-fix-suggestions"]]
-    {
-        let (status, frames) = run(&payload, &flags);
-        assert_eq!(status, 0, "{flags:?}: {frames:?}");
-        let mut count = 0;
-        for (file, expected) in &expected_by_file {
-            let Value::Array(expected) = expected else { panic!() };
-            count += expected.len();
-            let actual: Vec<_> = frames
-                .iter()
-                .filter_map(|(kind, value)| {
-                    assert_eq!(*kind, protocol::MessageType::Diagnostic as u8);
-                    let Value::Object(diagnostic) = value else { panic!() };
-                    (diagnostic["file_path"] == Value::String(file.clone()))
-                        .then_some(value.clone())
-                })
-                .collect();
-            let expected: Vec<_> = expected
-                .iter()
-                .map(|value| {
-                    let Value::Object(mut diagnostic) = value.clone() else { panic!() };
-                    diagnostic.insert("file_path", Value::String(file.clone()));
-                    Value::Object(diagnostic)
-                })
-                .collect();
-            assert_eq!(actual, expected, "{flags:?}: {file}");
-        }
-        assert_eq!(frames.len(), count, "{flags:?}: {frames:?}");
-    }
+    assert_diagnostics_by_file(&payload, &expected_by_file, false);
 }
 
 #[test]
@@ -5893,35 +5793,7 @@ fn restrict_plus_operands_preserves_utf8_labels_options_constraints_and_flags() 
         ("configs", Value::Array(configs)),
         ("source_overrides", Value::Object(overrides)),
     ]);
-    for flags in [vec![], vec!["-fix"], vec!["-fix-suggestions"], vec!["-fix", "-fix-suggestions"]]
-    {
-        let (status, frames) = run(&payload, &flags);
-        assert_eq!(status, 0, "{flags:?}: {frames:?}");
-        let mut count = 0;
-        for (file, expected) in &expected_by_file {
-            let Value::Array(expected) = expected else { panic!() };
-            count += expected.len();
-            let actual: Vec<_> = frames
-                .iter()
-                .filter_map(|(kind, value)| {
-                    assert_eq!(*kind, protocol::MessageType::Diagnostic as u8);
-                    let Value::Object(diagnostic) = value else { panic!() };
-                    (diagnostic["file_path"] == Value::String(file.clone()))
-                        .then_some(value.clone())
-                })
-                .collect();
-            let expected: Vec<_> = expected
-                .iter()
-                .map(|value| {
-                    let Value::Object(mut diagnostic) = value.clone() else { panic!() };
-                    diagnostic.insert("file_path", Value::String(file.clone()));
-                    Value::Object(diagnostic)
-                })
-                .collect();
-            assert_eq!(actual, expected, "{flags:?}: {file}");
-        }
-        assert_eq!(frames.len(), count, "{flags:?}: {frames:?}");
-    }
+    assert_diagnostics_by_file(&payload, &expected_by_file, false);
 }
 
 #[test]
@@ -6146,35 +6018,7 @@ fn strict_void_return_preserves_utf8_contexts_options_scopes_and_flags() {
         ("configs", Value::Array(configs)),
         ("source_overrides", Value::Object(overrides)),
     ]);
-    for flags in [vec![], vec!["-fix"], vec!["-fix-suggestions"], vec!["-fix", "-fix-suggestions"]]
-    {
-        let (status, frames) = run(&payload, &flags);
-        assert_eq!(status, 0, "{flags:?}: {frames:?}");
-        let mut count = 0;
-        for (file, expected) in &expected_by_file {
-            let Value::Array(expected) = expected else { panic!() };
-            count += expected.len();
-            let actual: Vec<_> = frames
-                .iter()
-                .filter_map(|(kind, value)| {
-                    assert_eq!(*kind, protocol::MessageType::Diagnostic as u8);
-                    let Value::Object(diagnostic) = value else { panic!() };
-                    (diagnostic["file_path"] == Value::String(file.clone()))
-                        .then_some(value.clone())
-                })
-                .collect();
-            let expected: Vec<_> = expected
-                .iter()
-                .map(|value| {
-                    let Value::Object(mut diagnostic) = value.clone() else { panic!() };
-                    diagnostic.insert("file_path", Value::String(file.clone()));
-                    Value::Object(diagnostic)
-                })
-                .collect();
-            assert_eq!(actual, expected, "{flags:?}: {file}");
-        }
-        assert_eq!(frames.len(), count, "{flags:?}: {frames:?}");
-    }
+    assert_diagnostics_by_file(&payload, &expected_by_file, false);
 }
 
 #[test]
@@ -6295,38 +6139,7 @@ fn switch_exhaustiveness_check_preserves_utf8_constraints_options_and_flags() {
         ("configs", Value::Array(configs)),
         ("source_overrides", Value::Object(overrides)),
     ]);
-    for flags in [vec![], vec!["-fix"], vec!["-fix-suggestions"], vec!["-fix", "-fix-suggestions"]]
-    {
-        let (status, frames) = run(&payload, &flags);
-        assert_eq!(status, 0, "{flags:?}: {frames:?}");
-        let mut count = 0;
-        for (file, expected) in &expected_by_file {
-            let Value::Array(expected) = expected else { panic!() };
-            count += expected.len();
-            let actual: Vec<_> = frames
-                .iter()
-                .filter_map(|(kind, value)| {
-                    assert_eq!(*kind, protocol::MessageType::Diagnostic as u8);
-                    let Value::Object(diagnostic) = value else { panic!() };
-                    (diagnostic["file_path"] == Value::String(file.clone()))
-                        .then_some(value.clone())
-                })
-                .collect();
-            let expected: Vec<_> = expected
-                .iter()
-                .map(|value| {
-                    let Value::Object(mut diagnostic) = value.clone() else { panic!() };
-                    diagnostic.insert("file_path", Value::String(file.clone()));
-                    if !flags.contains(&"-fix-suggestions") {
-                        diagnostic.shift_remove("suggestions");
-                    }
-                    Value::Object(diagnostic)
-                })
-                .collect();
-            assert_eq!(actual, expected, "{flags:?}: {file}");
-        }
-        assert_eq!(frames.len(), count, "{flags:?}: {frames:?}");
-    }
+    assert_diagnostics_by_file(&payload, &expected_by_file, true);
 }
 
 #[test]
