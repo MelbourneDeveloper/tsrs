@@ -78,39 +78,7 @@ impl FileChangeExpander for CachedLayeredFileSystem {
 
 // Go embeds `*cachedvfs.FS`.
 impl FS for CachedLayeredFileSystem {
-    fn use_case_sensitive_file_names(&self) -> bool {
-        self.fs.use_case_sensitive_file_names()
-    }
-    fn file_exists(&self, path: &str) -> bool {
-        self.fs.file_exists(path)
-    }
-    fn read_file(&self, path: &str) -> Option<String> {
-        self.fs.read_file(path)
-    }
-    fn write_file(&self, path: &str, data: &str) -> Result<(), String> {
-        self.fs.write_file(path, data)
-    }
-    fn append_file(&self, path: &str, data: &str) -> Result<(), String> {
-        self.fs.append_file(path, data)
-    }
-    fn remove(&self, path: &str) -> Result<(), String> {
-        self.fs.remove(path)
-    }
-    fn chtimes(&self, path: &str, a_time: SystemTime, m_time: SystemTime) -> Result<(), String> {
-        self.fs.chtimes(path, a_time, m_time)
-    }
-    fn directory_exists(&self, path: &str) -> bool {
-        self.fs.directory_exists(path)
-    }
-    fn get_accessible_entries(&self, path: &str) -> Entries {
-        self.fs.get_accessible_entries(path)
-    }
-    fn stat(&self, path: &str) -> Option<FileInfo> {
-        self.fs.stat(path)
-    }
-    fn realpath(&self, path: &str) -> String {
-        self.fs.realpath(path)
-    }
+    tsrs_vfs::forward_fs!(fs);
 }
 
 // realpathAliasSet is a thread-safe set of symlink paths that alias a single realpath.

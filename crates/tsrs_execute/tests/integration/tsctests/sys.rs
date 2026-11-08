@@ -10,7 +10,7 @@ use tsrs_core::P;
 use tsrs_core::tspath::{self, ComparePathsOptions, Path};
 use tsrs_vfs::iovfs::IoVFS;
 use tsrs_vfs::vfstest::MapFS;
-use tsrs_vfs::{Entries, FS, FileInfo, FileMode};
+use tsrs_vfs::{FS, FileMode};
 
 use super::readablebuildinfo::to_readable_build_info;
 use tsrs_execute::tsc::{CommandLineTesting, MTimesCache, SyncWriter, System};
@@ -100,12 +100,9 @@ impl TestFs {
 }
 
 impl FS for TestFs {
-    fn use_case_sensitive_file_names(&self) -> bool {
-        self.fs.use_case_sensitive_file_names()
-    }
-    fn file_exists(&self, path: &str) -> bool {
-        self.fs.file_exists(path)
-    }
+    tsrs_vfs::forward_fs!(fs =>
+        use_case_sensitive_file_names, file_exists, append_file, chtimes, directory_exists,
+        get_accessible_entries, stat, realpath);
     fn read_file(&self, path: &str) -> Option<String> {
         self.remove_ignore_lib_path(path);
         self.read_file_handling_build_info(path)
@@ -115,27 +112,9 @@ impl FS for TestFs {
         self.written_files.lock().unwrap().insert(path.to_string());
         self.write_file_handling_build_info(path, data)
     }
-    fn append_file(&self, path: &str, data: &str) -> Result<(), String> {
-        self.fs.append_file(path, data)
-    }
     fn remove(&self, path: &str) -> Result<(), String> {
         self.remove_ignore_lib_path(path);
         self.fs.remove(path)
-    }
-    fn chtimes(&self, path: &str, a_time: SystemTime, m_time: SystemTime) -> Result<(), String> {
-        self.fs.chtimes(path, a_time, m_time)
-    }
-    fn directory_exists(&self, path: &str) -> bool {
-        self.fs.directory_exists(path)
-    }
-    fn get_accessible_entries(&self, path: &str) -> Entries {
-        self.fs.get_accessible_entries(path)
-    }
-    fn stat(&self, path: &str) -> Option<FileInfo> {
-        self.fs.stat(path)
-    }
-    fn realpath(&self, path: &str) -> String {
-        self.fs.realpath(path)
     }
 }
 

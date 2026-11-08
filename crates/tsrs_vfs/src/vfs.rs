@@ -41,46 +41,79 @@ pub trait FS: Send + Sync {
     fn realpath(&self, path: &str) -> String;
 }
 
+/// Implements `FS` methods by forwarding them, as Go promotes the methods of an embedded `vfs.FS`.
+///
+/// `forward_fs!()` forwards through `*self`, `forward_fs!(fs)` to the field `fs`. With `=> method, …`, only the
+/// listed methods are forwarded and the impl writes the ones it overrides.
+#[macro_export]
 macro_rules! forward_fs {
-    () => {
+    (@to $self:tt) => { (**$self) };
+    (@to $self:tt $field:ident) => { $self.$field };
+    (@fn [$($field:ident)?] use_case_sensitive_file_names) => {
         fn use_case_sensitive_file_names(&self) -> bool {
-            (**self).use_case_sensitive_file_names()
+            $crate::forward_fs!(@to self $($field)?).use_case_sensitive_file_names()
         }
+    };
+    (@fn [$($field:ident)?] file_exists) => {
         fn file_exists(&self, path: &str) -> bool {
-            (**self).file_exists(path)
+            $crate::forward_fs!(@to self $($field)?).file_exists(path)
         }
+    };
+    (@fn [$($field:ident)?] read_file) => {
         fn read_file(&self, path: &str) -> Option<String> {
-            (**self).read_file(path)
+            $crate::forward_fs!(@to self $($field)?).read_file(path)
         }
+    };
+    (@fn [$($field:ident)?] write_file) => {
         fn write_file(&self, path: &str, data: &str) -> Result<(), String> {
-            (**self).write_file(path, data)
+            $crate::forward_fs!(@to self $($field)?).write_file(path, data)
         }
+    };
+    (@fn [$($field:ident)?] append_file) => {
         fn append_file(&self, path: &str, data: &str) -> Result<(), String> {
-            (**self).append_file(path, data)
+            $crate::forward_fs!(@to self $($field)?).append_file(path, data)
         }
+    };
+    (@fn [$($field:ident)?] remove) => {
         fn remove(&self, path: &str) -> Result<(), String> {
-            (**self).remove(path)
+            $crate::forward_fs!(@to self $($field)?).remove(path)
         }
-        fn chtimes(
-            &self,
-            path: &str,
-            a_time: SystemTime,
-            m_time: SystemTime,
-        ) -> Result<(), String> {
-            (**self).chtimes(path, a_time, m_time)
+    };
+    (@fn [$($field:ident)?] chtimes) => {
+        fn chtimes(&self, path: &str, a_time: ::std::time::SystemTime, m_time: ::std::time::SystemTime) -> Result<(), String> {
+            $crate::forward_fs!(@to self $($field)?).chtimes(path, a_time, m_time)
         }
+    };
+    (@fn [$($field:ident)?] directory_exists) => {
         fn directory_exists(&self, path: &str) -> bool {
-            (**self).directory_exists(path)
+            $crate::forward_fs!(@to self $($field)?).directory_exists(path)
         }
-        fn get_accessible_entries(&self, path: &str) -> Entries {
-            (**self).get_accessible_entries(path)
+    };
+    (@fn [$($field:ident)?] get_accessible_entries) => {
+        fn get_accessible_entries(&self, path: &str) -> $crate::Entries {
+            $crate::forward_fs!(@to self $($field)?).get_accessible_entries(path)
         }
-        fn stat(&self, path: &str) -> Option<FileInfo> {
-            (**self).stat(path)
+    };
+    (@fn [$($field:ident)?] stat) => {
+        fn stat(&self, path: &str) -> Option<$crate::FileInfo> {
+            $crate::forward_fs!(@to self $($field)?).stat(path)
         }
+    };
+    (@fn [$($field:ident)?] realpath) => {
         fn realpath(&self, path: &str) -> String {
-            (**self).realpath(path)
+            $crate::forward_fs!(@to self $($field)?).realpath(path)
         }
+    };
+    (@each $to:tt $($method:ident),+) => {
+        $($crate::forward_fs!(@fn $to $method);)+
+    };
+    ($($field:ident)? => $($method:ident),+ $(,)?) => {
+        $crate::forward_fs!(@each [$($field)?] $($method),+);
+    };
+    ($($field:ident)?) => {
+        $crate::forward_fs!($($field)? =>
+            use_case_sensitive_file_names, file_exists, read_file, write_file, append_file, remove, chtimes,
+            directory_exists, get_accessible_entries, stat, realpath);
     };
 }
 

@@ -4,11 +4,11 @@ use tsrs_module::util::*;
 
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Condvar, Mutex, mpsc};
-use std::time::{Duration, SystemTime};
+use std::time::Duration;
 
 use tsrs_core::collections::new_ordered_map_with_size_hint;
 use tsrs_core::{CompilerOptions, ModuleKind, ModuleResolutionKind, P, ScriptTarget};
-use tsrs_vfs::{Entries, FS, FileInfo, vfstest};
+use tsrs_vfs::{FS, vfstest};
 
 use tsrs_module::packagejson::InfoCacheEntryExt;
 
@@ -377,38 +377,9 @@ impl Gate {
 // Delegates every method but `file_exists`/`read_file` to `fs`.
 macro_rules! delegate_fs {
     () => {
-        fn use_case_sensitive_file_names(&self) -> bool {
-            self.fs.use_case_sensitive_file_names()
-        }
-        fn write_file(&self, path: &str, data: &str) -> Result<(), String> {
-            self.fs.write_file(path, data)
-        }
-        fn append_file(&self, path: &str, data: &str) -> Result<(), String> {
-            self.fs.append_file(path, data)
-        }
-        fn remove(&self, path: &str) -> Result<(), String> {
-            self.fs.remove(path)
-        }
-        fn chtimes(
-            &self,
-            path: &str,
-            a_time: SystemTime,
-            m_time: SystemTime,
-        ) -> Result<(), String> {
-            self.fs.chtimes(path, a_time, m_time)
-        }
-        fn directory_exists(&self, path: &str) -> bool {
-            self.fs.directory_exists(path)
-        }
-        fn get_accessible_entries(&self, path: &str) -> Entries {
-            self.fs.get_accessible_entries(path)
-        }
-        fn stat(&self, path: &str) -> Option<FileInfo> {
-            self.fs.stat(path)
-        }
-        fn realpath(&self, path: &str) -> String {
-            self.fs.realpath(path)
-        }
+        tsrs_vfs::forward_fs!(fs =>
+            use_case_sensitive_file_names, write_file, append_file, remove, chtimes, directory_exists,
+            get_accessible_entries, stat, realpath);
     };
 }
 

@@ -5,7 +5,6 @@
 // Only used under `--baselines js`; the default mode keeps the single type-check program in compile.rs.
 
 use std::sync::{Arc, Mutex};
-use std::time::SystemTime;
 
 use indexmap::IndexMap;
 use rustc_hash::FxHashMap;
@@ -14,7 +13,7 @@ use tsrs_compiler::{self as compiler, CompilerHost};
 use tsrs_core::tspath::{self, ComparePathsOptions};
 use tsrs_core::{CompilerOptions, P, ScriptKind, Tristate};
 use tsrs_tsoptions::{ParsedCommandLine, outputpaths};
-use tsrs_vfs::{Entries, FS, FileInfo};
+use tsrs_vfs::FS;
 
 use crate::baseline::NO_CONTENT;
 use crate::compile::{CompilationResult, convert_diagnostics};
@@ -40,15 +39,9 @@ impl OutputRecorderFS {
 }
 
 impl FS for OutputRecorderFS {
-    fn use_case_sensitive_file_names(&self) -> bool {
-        self.fs.use_case_sensitive_file_names()
-    }
-    fn file_exists(&self, path: &str) -> bool {
-        self.fs.file_exists(path)
-    }
-    fn read_file(&self, path: &str) -> Option<String> {
-        self.fs.read_file(path)
-    }
+    tsrs_vfs::forward_fs!(fs =>
+        use_case_sensitive_file_names, file_exists, read_file, append_file, remove, chtimes,
+        directory_exists, get_accessible_entries, stat, realpath);
     // recorderfs.go:21
     fn write_file(&self, path: &str, data: &str) -> Result<(), String> {
         self.fs.write_file(path, data)?;
@@ -63,27 +56,6 @@ impl FS for OutputRecorderFS {
             outputs.push(TestFile { unit_name: path, content: data.to_string() });
         }
         Ok(())
-    }
-    fn append_file(&self, path: &str, data: &str) -> Result<(), String> {
-        self.fs.append_file(path, data)
-    }
-    fn remove(&self, path: &str) -> Result<(), String> {
-        self.fs.remove(path)
-    }
-    fn chtimes(&self, path: &str, a_time: SystemTime, m_time: SystemTime) -> Result<(), String> {
-        self.fs.chtimes(path, a_time, m_time)
-    }
-    fn directory_exists(&self, path: &str) -> bool {
-        self.fs.directory_exists(path)
-    }
-    fn get_accessible_entries(&self, path: &str) -> Entries {
-        self.fs.get_accessible_entries(path)
-    }
-    fn stat(&self, path: &str) -> Option<FileInfo> {
-        self.fs.stat(path)
-    }
-    fn realpath(&self, path: &str) -> String {
-        self.fs.realpath(path)
     }
 }
 
