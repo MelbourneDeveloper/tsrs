@@ -7,6 +7,8 @@ struct ImportElisionTransformer {
     emit_resolver: Option<Resolver>,
 }
 
+crate::embeds_transformer!(ImportElisionTransformer);
+
 // importelision.go:17
 #[expect(
     clippy::unnecessary_wraps,
@@ -32,10 +34,6 @@ pub fn new_import_elision_transformer(opt: &TransformOptions) -> Option<P<Transf
 }
 
 impl ImportElisionTransformer {
-    fn emit_context(&self) -> P<EmitContext> {
-        self.base.emit_context()
-    }
-
     // importelision.go:27
     fn visit(&self, node: P<Node>) -> Option<P<Node>> {
         if ast::is_source_file(node)

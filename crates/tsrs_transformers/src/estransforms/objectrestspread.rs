@@ -12,19 +12,9 @@ struct ObjectRestSpreadTransformer {
     parameters_with_preceding_object_rest_or_spread: RefCell<Option<FxHashSet<P<Node>>>>,
 }
 
+crate::embeds_transformer!(ObjectRestSpreadTransformer);
+
 impl ObjectRestSpreadTransformer {
-    fn emit_context(&self) -> P<EmitContext> {
-        self.base.emit_context()
-    }
-
-    fn factory(&self) -> &'static printer::NodeFactory {
-        self.base.factory()
-    }
-
-    fn visitor(&self) -> NodeVisitor {
-        self.base.visitor()
-    }
-
     // objectrestspread.go:20
     fn visit(&self, node: P<Node>) -> Option<P<Node>> {
         if !node.subtree_facts().intersects(SubtreeFacts::ContainsESObjectRestOrSpread)

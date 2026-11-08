@@ -19,6 +19,8 @@ struct MetadataTransformer {
     current_lexical_scope: Cell<Option<P<Node>>>,
 }
 
+crate::embeds_transformer!(MetadataTransformer);
+
 // metadata.go:24
 #[expect(
     clippy::unnecessary_wraps,
@@ -44,18 +46,6 @@ pub fn new_metadata_transformer(opt: &TransformOptions) -> Option<P<Transformer>
 }
 
 impl MetadataTransformer {
-    fn emit_context(&self) -> P<EmitContext> {
-        self.base.emit_context()
-    }
-
-    fn factory(&self) -> &'static printer::NodeFactory {
-        self.base.factory()
-    }
-
-    fn visitor(&self) -> NodeVisitor {
-        self.base.visitor()
-    }
-
     fn serializer(&self) -> P<MetadataSerializer> {
         self.serializer.get().unwrap()
     }

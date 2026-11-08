@@ -58,6 +58,8 @@ struct ForawaitTransformer {
     no_async_modifier_visitor: OnceCell<NodeVisitor>,
 }
 
+crate::embeds_transformer!(ForawaitTransformer);
+
 // forawait.go:56
 #[expect(
     clippy::unnecessary_wraps,
@@ -98,18 +100,6 @@ pub(crate) fn newforawait_transformer(opt: &TransformOptions) -> Option<P<Transf
 }
 
 impl ForawaitTransformer {
-    fn emit_context(&self) -> P<EmitContext> {
-        self.base.emit_context()
-    }
-
-    fn factory(&self) -> &'static printer::NodeFactory {
-        self.base.factory()
-    }
-
-    fn visitor(&self) -> NodeVisitor {
-        self.base.visitor()
-    }
-
     fn sas(&self) -> &SuperAccessState {
         &self.super_access_state
     }

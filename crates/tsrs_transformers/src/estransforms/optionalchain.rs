@@ -5,19 +5,9 @@ struct OptionalChainTransformer {
     base: Transformer,
 }
 
+crate::embeds_transformer!(OptionalChainTransformer);
+
 impl OptionalChainTransformer {
-    fn emit_context(&self) -> P<EmitContext> {
-        self.base.emit_context()
-    }
-
-    fn factory(&self) -> &'static printer::NodeFactory {
-        self.base.factory()
-    }
-
-    fn visitor(&self) -> NodeVisitor {
-        self.base.visitor()
-    }
-
     // optionalchain.go:14
     fn visit(&self, node: P<Node>) -> Option<P<Node>> {
         if !node.subtree_facts().intersects(SubtreeFacts::ContainsOptionalChaining) {

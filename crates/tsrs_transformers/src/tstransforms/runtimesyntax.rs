@@ -23,6 +23,8 @@ struct RuntimeSyntaxTransformer {
     emit_resolver: Option<Resolver>,
 }
 
+crate::embeds_transformer!(RuntimeSyntaxTransformer);
+
 // runtimesyntax.go:31
 #[expect(
     clippy::unnecessary_wraps,
@@ -51,18 +53,6 @@ pub fn new_runtime_syntax_transformer(opt: &TransformOptions) -> Option<P<Transf
 }
 
 impl RuntimeSyntaxTransformer {
-    fn emit_context(&self) -> P<EmitContext> {
-        self.base.emit_context()
-    }
-
-    fn factory(&self) -> &'static printer::NodeFactory {
-        self.base.factory()
-    }
-
-    fn visitor(&self) -> NodeVisitor {
-        self.base.visitor()
-    }
-
     // Pushes a new child node onto the ancestor tracking stack, returning the grandparent node to be restored later via `popNode`.
     // runtimesyntax.go:39
     fn push_node(&self, node: P<Node>) -> Option<P<Node>> {

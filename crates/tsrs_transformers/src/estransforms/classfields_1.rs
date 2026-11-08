@@ -143,6 +143,8 @@ pub(crate) struct ClassFieldsTransformer {
     // Go `isAnonymousClassNeedingAssignedName` (a pre-bound method value) is a closure built at each call site.
 }
 
+crate::embeds_transformer!(ClassFieldsTransformer);
+
 // classfields.go:140
 pub(crate) fn new_class_fields_transformer(opts: &TransformOptions) -> Option<P<Transformer>> {
     let language_version = opts.compiler_options.get_emit_script_target();
@@ -256,18 +258,6 @@ pub(crate) fn new_class_fields_transformer(opts: &TransformOptions) -> Option<P<
 }
 
 impl ClassFieldsTransformer {
-    pub(crate) fn emit_context(&self) -> P<EmitContext> {
-        self.base.emit_context()
-    }
-
-    pub(crate) fn factory(&self) -> &'static printer::NodeFactory {
-        self.base.factory()
-    }
-
-    pub(crate) fn visitor(&self) -> NodeVisitor {
-        self.base.visitor()
-    }
-
     pub(crate) fn modifier_visitor(&self) -> NodeVisitor {
         self.modifier_visitor.get().unwrap().clone()
     }

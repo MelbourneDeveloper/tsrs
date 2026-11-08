@@ -13,6 +13,20 @@ pub struct Transformer {
     visitor: OnceCell<ast::NodeVisitor>,
 }
 
+/// Go's embedding of `transformers.Transformer`, which promotes its methods (`EmitContext`, `Factory`, `Visitor`,
+/// …): the transformer derefs to its `base` field.
+#[macro_export]
+macro_rules! embeds_transformer {
+    ($t:ty) => {
+        impl std::ops::Deref for $t {
+            type Target = $crate::Transformer;
+            fn deref(&self) -> &$crate::Transformer {
+                &self.base
+            }
+        }
+    };
+}
+
 impl Transformer {
     // transformer.go:14
     pub fn new_transformer(

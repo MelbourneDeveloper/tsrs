@@ -11,6 +11,8 @@ struct UsingDeclarationTransformer {
     export_equals_binding: Cell<Option<P<Node>>>,
 }
 
+crate::embeds_transformer!(UsingDeclarationTransformer);
+
 // using.go:21
 #[expect(
     clippy::unnecessary_wraps,
@@ -40,18 +42,6 @@ enum UsingKind {
 }
 
 impl UsingDeclarationTransformer {
-    fn emit_context(&self) -> P<EmitContext> {
-        self.base.emit_context()
-    }
-
-    fn factory(&self) -> &'static printer::NodeFactory {
-        self.base.factory()
-    }
-
-    fn visitor(&self) -> NodeVisitor {
-        self.base.visitor()
-    }
-
     // using.go:34
     fn visit(&self, node: P<Node>) -> P<Node> {
         if !node.subtree_facts().intersects(SubtreeFacts::ContainsUsing) {

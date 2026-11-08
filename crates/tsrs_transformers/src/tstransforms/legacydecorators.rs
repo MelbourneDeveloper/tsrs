@@ -14,6 +14,8 @@ struct LegacyDecoratorsTransformer {
     enclosing_classes: RefCell<Vec<P<Node>>>,
 }
 
+crate::embeds_transformer!(LegacyDecoratorsTransformer);
+
 // legacydecorators.go:25
 #[expect(
     clippy::unnecessary_wraps,
@@ -34,18 +36,6 @@ pub fn new_legacy_decorators_transformer(opt: &TransformOptions) -> Option<P<Tra
 }
 
 impl LegacyDecoratorsTransformer {
-    fn emit_context(&self) -> P<EmitContext> {
-        self.base.emit_context()
-    }
-
-    fn factory(&self) -> &'static printer::NodeFactory {
-        self.base.factory()
-    }
-
-    fn visitor(&self) -> NodeVisitor {
-        self.base.visitor()
-    }
-
     // legacydecorators.go:30
     fn visit(&self, node: P<Node>) -> Option<P<Node>> {
         // we have to visit all identifiers in classes, just in case they require substitution

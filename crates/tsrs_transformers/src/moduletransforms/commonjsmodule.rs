@@ -27,6 +27,8 @@ pub(crate) struct CommonJSModuleTransformer {
     pub(crate) use_case_sensitive_file_names: bool,
 }
 
+crate::embeds_transformer!(CommonJSModuleTransformer);
+
 // commonjsmodule.go:32
 #[expect(
     clippy::unnecessary_wraps,
@@ -73,18 +75,6 @@ pub fn new_common_js_module_transformer(opts: &TransformOptions) -> Option<P<Tra
 }
 
 impl CommonJSModuleTransformer {
-    pub(crate) fn emit_context(&self) -> P<EmitContext> {
-        self.base.emit_context()
-    }
-
-    pub(crate) fn factory(&self) -> &'static printer::NodeFactory {
-        self.base.factory()
-    }
-
-    pub(crate) fn visitor(&self) -> NodeVisitor {
-        self.base.visitor()
-    }
-
     fn top_level_visitor(&self) -> NodeVisitor {
         self.top_level_visitor.get().unwrap().clone()
     }

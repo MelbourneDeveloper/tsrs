@@ -90,20 +90,10 @@ pub struct DeclarationTransformer {
     pub(crate) in_class_expression_declaration: Cell<bool>, // true when serializing members of a class expression kept as a class declaration
 }
 
+tsrs_transformers::embeds_transformer!(DeclarationTransformer);
+
 impl DeclarationTransformer {
-    // Go's promoted `Transformer` methods and visitor fields. Visitors are handed out as copies (they are stateless).
-
-    pub(crate) fn emit_context(&self) -> P<EmitContext> {
-        self.base.emit_context()
-    }
-
-    pub(crate) fn visitor(&self) -> ast::NodeVisitor {
-        self.base.visitor()
-    }
-
-    pub(crate) fn factory(&self) -> &'static printer::NodeFactory {
-        self.base.factory()
-    }
+    // Go's visitor fields. Visitors are handed out as copies (they are stateless).
 
     /// Go `tx.Visitor().Visit(node)`: calls the visit callback directly (no `SyntaxList` lifting); Go's
     /// `visit` returns nil for a nil node.

@@ -18,6 +18,8 @@ struct JSXTransformer {
     current_source_file: Cell<Option<P<SourceFile>>>,
 }
 
+crate::embeds_transformer!(JSXTransformer);
+
 // jsx.go:32
 #[expect(
     clippy::unnecessary_wraps,
@@ -43,18 +45,6 @@ pub fn new_jsx_transformer(opts: &TransformOptions) -> Option<P<Transformer>> {
 }
 
 impl JSXTransformer {
-    fn emit_context(&self) -> P<EmitContext> {
-        self.base.emit_context()
-    }
-
-    fn factory(&self) -> &'static printer::NodeFactory {
-        self.base.factory()
-    }
-
-    fn visitor(&self) -> NodeVisitor {
-        self.base.visitor()
-    }
-
     fn current_source_file(&self) -> P<SourceFile> {
         self.current_source_file.get().unwrap()
     }

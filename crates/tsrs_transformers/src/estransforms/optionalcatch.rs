@@ -5,15 +5,9 @@ struct OptionalCatchTransformer {
     base: Transformer,
 }
 
+crate::embeds_transformer!(OptionalCatchTransformer);
+
 impl OptionalCatchTransformer {
-    fn factory(&self) -> &'static printer::NodeFactory {
-        self.base.factory()
-    }
-
-    fn visitor(&self) -> NodeVisitor {
-        self.base.visitor()
-    }
-
     // optionalcatch.go:12
     fn visit(&self, node: P<Node>) -> Option<P<Node>> {
         if !node.subtree_facts().intersects(SubtreeFacts::ContainsMissingCatchClauseVariable) {

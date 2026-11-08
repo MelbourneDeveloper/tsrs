@@ -5,19 +5,9 @@ struct LogicalAssignmentTransformer {
     base: Transformer,
 }
 
+crate::embeds_transformer!(LogicalAssignmentTransformer);
+
 impl LogicalAssignmentTransformer {
-    fn emit_context(&self) -> P<EmitContext> {
-        self.base.emit_context()
-    }
-
-    fn factory(&self) -> &'static printer::NodeFactory {
-        self.base.factory()
-    }
-
-    fn visitor(&self) -> NodeVisitor {
-        self.base.visitor()
-    }
-
     // logicalassignment.go:12
     fn visit(&self, node: P<Node>) -> Option<P<Node>> {
         if !node.subtree_facts().intersects(SubtreeFacts::ContainsLogicalAssignments) {

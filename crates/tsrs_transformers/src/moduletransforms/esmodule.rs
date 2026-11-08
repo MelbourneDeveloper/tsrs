@@ -10,6 +10,8 @@ struct ESModuleTransformer {
     use_case_sensitive_file_names: bool,
 }
 
+crate::embeds_transformer!(ESModuleTransformer);
+
 #[derive(Clone)]
 struct ImportRequireStatements {
     statements: Vec<P<Node>>,
@@ -39,18 +41,6 @@ pub fn new_es_module_transformer(opts: &TransformOptions) -> Option<P<Transforme
 }
 
 impl ESModuleTransformer {
-    fn emit_context(&self) -> P<EmitContext> {
-        self.base.emit_context()
-    }
-
-    fn factory(&self) -> &'static printer::NodeFactory {
-        self.base.factory()
-    }
-
-    fn visitor(&self) -> NodeVisitor {
-        self.base.visitor()
-    }
-
     // Visits source elements that are not top-level or top-level nested statements.
     // esmodule.go:35
     fn visit(&self, node: P<Node>) -> Option<P<Node>> {

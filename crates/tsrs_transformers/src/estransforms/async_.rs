@@ -31,6 +31,8 @@ struct AsyncTransformer {
     fallback_node_visitor: OnceCell<NodeVisitor>,
 }
 
+crate::embeds_transformer!(AsyncTransformer);
+
 // async.go:37
 #[expect(
     clippy::unnecessary_wraps,
@@ -62,18 +64,6 @@ pub fn new_async_transformer(opt: &TransformOptions) -> Option<P<Transformer>> {
 }
 
 impl AsyncTransformer {
-    fn emit_context(&self) -> P<EmitContext> {
-        self.base.emit_context()
-    }
-
-    fn factory(&self) -> &'static printer::NodeFactory {
-        self.base.factory()
-    }
-
-    fn visitor(&self) -> NodeVisitor {
-        self.base.visitor()
-    }
-
     fn async_body_visitor(&self) -> NodeVisitor {
         self.async_body_visitor.get().unwrap().clone()
     }

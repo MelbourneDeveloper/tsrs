@@ -7,6 +7,8 @@ struct TypeEraserTransformer {
     current_node: Cell<Option<P<Node>>>,
 }
 
+crate::embeds_transformer!(TypeEraserTransformer);
+
 // typeeraser.go:18
 #[expect(
     clippy::unnecessary_wraps,
@@ -28,18 +30,6 @@ pub fn new_type_eraser_transformer(opt: &TransformOptions) -> Option<P<Transform
 }
 
 impl TypeEraserTransformer {
-    fn emit_context(&self) -> P<EmitContext> {
-        self.base.emit_context()
-    }
-
-    fn factory(&self) -> &'static printer::NodeFactory {
-        self.base.factory()
-    }
-
-    fn visitor(&self) -> NodeVisitor {
-        self.base.visitor()
-    }
-
     // Pushes a new child node onto the ancestor tracking stack, returning the grandparent node to be restored later via `popNode`.
     // typeeraser.go:26
     fn push_node(&self, node: P<Node>) -> Option<P<Node>> {
