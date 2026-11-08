@@ -37,6 +37,97 @@ pub struct FieldSpec {
     pub elem: Option<Elem>,
 }
 
+// Go `CreateSnapshotParams`, the params of `createSnapshot`. It embeds `SnapshotRequestChangesParams` first.
+const CREATE_SNAPSHOT_PARAMS: &[FieldSpec] = &[
+    FieldSpec {
+        name: "openProjects",
+        go_type: "[]DocumentIdentifier",
+        kind: FieldKind::DocList,
+        nullable: false,
+        elem: None,
+    },
+    FieldSpec {
+        name: "closeProjects",
+        go_type: "[]DocumentIdentifier",
+        kind: FieldKind::DocList,
+        nullable: false,
+        elem: None,
+    },
+    FieldSpec {
+        name: "openFiles",
+        go_type: "[]DocumentIdentifier",
+        kind: FieldKind::DocList,
+        nullable: false,
+        elem: None,
+    },
+    FieldSpec {
+        name: "closeFiles",
+        go_type: "[]DocumentIdentifier",
+        kind: FieldKind::DocList,
+        nullable: false,
+        elem: None,
+    },
+    FieldSpec {
+        name: "createPrograms",
+        go_type: "[]*CreateSnapshotProgramParams",
+        kind: FieldKind::Array,
+        nullable: false,
+        elem: Some(Elem::Object),
+    },
+    FieldSpec {
+        name: "reconfigurePrograms",
+        go_type: "[]*ReconfigureSnapshotProgramParams",
+        kind: FieldKind::Array,
+        nullable: false,
+        elem: Some(Elem::Object),
+    },
+    FieldSpec {
+        name: "removePrograms",
+        go_type: "[]project.SyntheticProjectID",
+        kind: FieldKind::Array,
+        nullable: false,
+        elem: Some(Elem::Any),
+    },
+    FieldSpec {
+        name: "ensurePrograms",
+        go_type: "EnsurePrograms",
+        kind: FieldKind::Any,
+        nullable: true,
+        elem: None,
+    },
+    FieldSpec {
+        name: "userPreferences",
+        go_type: "*lsutil.UserPreferences",
+        kind: FieldKind::Object,
+        nullable: true,
+        elem: None,
+    },
+    FieldSpec {
+        name: "prepareAutoImports",
+        go_type: "*DocumentIdentifier",
+        kind: FieldKind::Doc,
+        nullable: true,
+        elem: None,
+    },
+    FieldSpec {
+        name: "fileNotifications",
+        go_type: "FileNotifications",
+        kind: FieldKind::Object,
+        nullable: true,
+        elem: None,
+    },
+    FieldSpec {
+        name: "fileSystem",
+        go_type: "requestfilesystem.RequestFileSystem",
+        kind: FieldKind::Object,
+        nullable: true,
+        elem: None,
+    },
+];
+
+// Go `SnapshotRequestChangesParams`, embedded by `CreateSnapshotParams` and `LanguageServerSnapshotChanges`.
+const SNAPSHOT_REQUEST_CHANGES_PARAMS: &[FieldSpec] = CREATE_SNAPSHOT_PARAMS.split_at(8).0;
+
 pub fn params_fields(method: &str) -> &'static [FieldSpec] {
     match method {
         "batchRequests" => &[
@@ -99,78 +190,7 @@ pub fn params_fields(method: &str) -> &'static [FieldSpec] {
                 elem: None,
             },
         ],
-        "createSnapshot" => &[
-            FieldSpec {
-                name: "openProjects",
-                go_type: "[]DocumentIdentifier",
-                kind: FieldKind::DocList,
-                nullable: false,
-                elem: None,
-            },
-            FieldSpec {
-                name: "closeProjects",
-                go_type: "[]DocumentIdentifier",
-                kind: FieldKind::DocList,
-                nullable: false,
-                elem: None,
-            },
-            FieldSpec {
-                name: "openFiles",
-                go_type: "[]DocumentIdentifier",
-                kind: FieldKind::DocList,
-                nullable: false,
-                elem: None,
-            },
-            FieldSpec {
-                name: "closeFiles",
-                go_type: "[]DocumentIdentifier",
-                kind: FieldKind::DocList,
-                nullable: false,
-                elem: None,
-            },
-            FieldSpec {
-                name: "createPrograms",
-                go_type: "[]*CreateSnapshotProgramParams",
-                kind: FieldKind::Array,
-                nullable: false,
-                elem: Some(Elem::Object),
-            },
-            FieldSpec {
-                name: "reconfigurePrograms",
-                go_type: "[]*ReconfigureSnapshotProgramParams",
-                kind: FieldKind::Array,
-                nullable: false,
-                elem: Some(Elem::Object),
-            },
-            FieldSpec {
-                name: "removePrograms",
-                go_type: "[]project.SyntheticProjectID",
-                kind: FieldKind::Array,
-                nullable: false,
-                elem: Some(Elem::Any),
-            },
-            FieldSpec {
-                name: "ensurePrograms",
-                go_type: "EnsurePrograms",
-                kind: FieldKind::Any,
-                nullable: true,
-                elem: None,
-            },
-            FieldSpec {
-                name: "fileNotifications",
-                go_type: "FileNotifications",
-                kind: FieldKind::Object,
-                nullable: true,
-                elem: None,
-            },
-            FieldSpec {
-                name: "fileSystem",
-                go_type: "requestfilesystem.RequestFileSystem",
-                kind: FieldKind::Object,
-                nullable: true,
-                elem: None,
-            },
-        ],
+        "createSnapshot" => CREATE_SNAPSHOT_PARAMS,
         "updateSnapshot" => &[
             FieldSpec {
                 name: "snapshot",
@@ -1753,92 +1773,7 @@ pub fn struct_fields(name: &str) -> &'static [FieldSpec] {
                 elem: None,
             },
         ],
-        "CreateSnapshotParams" => &[
-            FieldSpec {
-                name: "openProjects",
-                go_type: "[]DocumentIdentifier",
-                kind: FieldKind::DocList,
-                nullable: false,
-                elem: None,
-            },
-            FieldSpec {
-                name: "closeProjects",
-                go_type: "[]DocumentIdentifier",
-                kind: FieldKind::DocList,
-                nullable: false,
-                elem: None,
-            },
-            FieldSpec {
-                name: "openFiles",
-                go_type: "[]DocumentIdentifier",
-                kind: FieldKind::DocList,
-                nullable: false,
-                elem: None,
-            },
-            FieldSpec {
-                name: "closeFiles",
-                go_type: "[]DocumentIdentifier",
-                kind: FieldKind::DocList,
-                nullable: false,
-                elem: None,
-            },
-            FieldSpec {
-                name: "createPrograms",
-                go_type: "[]*CreateSnapshotProgramParams",
-                kind: FieldKind::Array,
-                nullable: false,
-                elem: Some(Elem::Object),
-            },
-            FieldSpec {
-                name: "reconfigurePrograms",
-                go_type: "[]*ReconfigureSnapshotProgramParams",
-                kind: FieldKind::Array,
-                nullable: false,
-                elem: Some(Elem::Object),
-            },
-            FieldSpec {
-                name: "removePrograms",
-                go_type: "[]project.SyntheticProjectID",
-                kind: FieldKind::Array,
-                nullable: false,
-                elem: Some(Elem::Any),
-            },
-            FieldSpec {
-                name: "ensurePrograms",
-                go_type: "EnsurePrograms",
-                kind: FieldKind::Any,
-                nullable: true,
-                elem: None,
-            },
-            FieldSpec {
-                name: "userPreferences",
-                go_type: "*lsutil.UserPreferences",
-                kind: FieldKind::Object,
-                nullable: true,
-                elem: None,
-            },
-            FieldSpec {
-                name: "prepareAutoImports",
-                go_type: "*DocumentIdentifier",
-                kind: FieldKind::Doc,
-                nullable: true,
-                elem: None,
-            },
-            FieldSpec {
-                name: "fileNotifications",
-                go_type: "FileNotifications",
-                kind: FieldKind::Object,
-                nullable: true,
-                elem: None,
-            },
-            FieldSpec {
-                name: "fileSystem",
-                go_type: "requestfilesystem.RequestFileSystem",
-                kind: FieldKind::Object,
-                nullable: true,
-                elem: None,
-            },
-        ],
+        "CreateSnapshotParams" => CREATE_SNAPSHOT_PARAMS,
         "CreateSnapshotProgramParams" => &[
             FieldSpec {
                 name: "rootFiles",
@@ -2054,64 +1989,7 @@ pub fn struct_fields(name: &str) -> &'static [FieldSpec] {
                 elem: None,
             },
         ],
-        "LanguageServerSnapshotChanges" => &[
-            FieldSpec {
-                name: "openProjects",
-                go_type: "[]DocumentIdentifier",
-                kind: FieldKind::DocList,
-                nullable: false,
-                elem: None,
-            },
-            FieldSpec {
-                name: "closeProjects",
-                go_type: "[]DocumentIdentifier",
-                kind: FieldKind::DocList,
-                nullable: false,
-                elem: None,
-            },
-            FieldSpec {
-                name: "openFiles",
-                go_type: "[]DocumentIdentifier",
-                kind: FieldKind::DocList,
-                nullable: false,
-                elem: None,
-            },
-            FieldSpec {
-                name: "closeFiles",
-                go_type: "[]DocumentIdentifier",
-                kind: FieldKind::DocList,
-                nullable: false,
-                elem: None,
-            },
-            FieldSpec {
-                name: "createPrograms",
-                go_type: "[]*CreateSnapshotProgramParams",
-                kind: FieldKind::Array,
-                nullable: false,
-                elem: Some(Elem::Object),
-            },
-            FieldSpec {
-                name: "reconfigurePrograms",
-                go_type: "[]*ReconfigureSnapshotProgramParams",
-                kind: FieldKind::Array,
-                nullable: false,
-                elem: Some(Elem::Object),
-            },
-            FieldSpec {
-                name: "removePrograms",
-                go_type: "[]project.SyntheticProjectID",
-                kind: FieldKind::Array,
-                nullable: false,
-                elem: Some(Elem::Any),
-            },
-            FieldSpec {
-                name: "ensurePrograms",
-                go_type: "EnsurePrograms",
-                kind: FieldKind::Any,
-                nullable: true,
-                elem: None,
-            },
-        ],
+        "LanguageServerSnapshotChanges" => SNAPSHOT_REQUEST_CHANGES_PARAMS,
         "ModuleResolutionEntry" => &[
             FieldSpec {
                 name: "moduleName",

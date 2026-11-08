@@ -656,3 +656,34 @@ fn unknown_enum_values_and_go_int_options_match_go() {
 fn json_text(v: &tsrs_core::json::Value) -> String {
     tsrs_core::json::marshal(v).unwrap()
 }
+
+/// `createSnapshot` decodes the whole Go `CreateSnapshotParams`, `userPreferences` and `prepareAutoImports`
+/// included, as `updateSnapshot` does for its `changes` (expected messages from the pinned Go reference).
+#[test]
+fn create_snapshot_params_decode_like_go() {
+    let dir = TempDir::new("createparams");
+    let s = session(&dir.dir(), false);
+    let prefix = "api: invalid request: failed to unmarshal *api.CreateSnapshotParams: json: ";
+    let e = call_err(&s, "createSnapshot", r#"{"prepareAutoImports":5}"#);
+    assert_eq!(
+        e,
+        format!(
+            "{prefix}cannot unmarshal into Go api.DocumentIdentifier within \"/prepareAutoImports\": DocumentIdentifier: expected string or object, got number"
+        )
+    );
+    for payload in [r#"{"userPreferences":5}"#, r#"{"userPreferences":5,"fileNotifications":7}"#] {
+        let e = call_err(&s, "createSnapshot", payload);
+        assert!(
+            e.starts_with(prefix) && e.contains("within \"/userPreferences\""),
+            "{payload}: {e}"
+        );
+    }
+    let first = call(&s, "createSnapshot", r#"{"userPreferences":{},"prepareAutoImports":null}"#);
+    let Value::Number(id) = get(&first, "snapshot") else { panic!() };
+    let e = call_err(
+        &s,
+        "updateSnapshot",
+        &format!(r#"{{"snapshot":{id},"changes":{{"userPreferences":5}}}}"#),
+    );
+    assert!(e.contains("within \"/changes/userPreferences\""), "{e}");
+}
