@@ -30,6 +30,9 @@ tsrs_transformers.workspace = true
 rustc-hash.workspace = true
 rayon.workspace = true
 
+[dev-dependencies]
+tsrs_testutil.workspace = true
+
 [lib]
 test = false
 doctest = false

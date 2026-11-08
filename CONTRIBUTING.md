@@ -151,8 +151,8 @@ Capture its combined stdout and stderr, replacing the case's absolute directory 
 Rust tests live in each crate's one integration test binary, `tests/integration/main.rs`: add a module there for
 code the fixtures cannot reach. Do not add unit tests in `src`. Every `[lib]` and `[[bin]]` sets `test = false`, so
 they would never run, and `tools/lint/source.mjs` rejects them. A test that changes process-wide state (fast mode,
-checker history, write settling, RSS) runs alone in a child process, as `isolated::in_child` in tsrs_fswatch's tests
-does.
+checker history, write settling, RSS) runs alone in a child process through `tsrs_testutil::in_child`, as
+tsrs_fswatch's tests do.
 
 ## Landing changes
 

@@ -65,7 +65,7 @@ fn wait_for(seen: &Seen, n: usize, timeout: Duration) {
 
 #[test]
 fn kqueue_on_macos() {
-    if !crate::isolated::in_child("kqueue_macos::kqueue_on_macos") {
+    if !tsrs_testutil::in_child("kqueue_macos::kqueue_on_macos") {
         return;
     }
     set_write_settling(true);

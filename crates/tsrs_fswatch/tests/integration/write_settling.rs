@@ -61,7 +61,7 @@ fn temp_dir(name: &str) -> std::path::PathBuf {
 
 #[test]
 fn write_settling() {
-    if !crate::isolated::in_child("write_settling::write_settling") {
+    if !tsrs_testutil::in_child("write_settling::write_settling") {
         return;
     }
     set_write_settling(true);

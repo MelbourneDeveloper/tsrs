@@ -8,7 +8,7 @@ use crate::common::*;
 /// serialized.
 #[test]
 fn repeated_config_parsing_reclaims_memory() {
-    if !crate::isolated::in_child("config_memory_test::repeated_config_parsing_reclaims_memory") {
+    if !tsrs_testutil::in_child("config_memory_test::repeated_config_parsing_reclaims_memory") {
         return;
     }
     let dir = TempDir::new("cfgloop");

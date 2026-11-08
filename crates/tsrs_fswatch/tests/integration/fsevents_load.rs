@@ -12,7 +12,7 @@ use tsrs_fswatch::{ERR_OVERFLOW, fsevents};
 #[test]
 fn a_burst_under_load_drops_no_events() {
     const FILES: usize = 10_000;
-    if !crate::isolated::in_child("fsevents_load::a_burst_under_load_drops_no_events") {
+    if !tsrs_testutil::in_child("fsevents_load::a_burst_under_load_drops_no_events") {
         return;
     }
 

@@ -1,0 +1,16 @@
+[package]
+name = "tsrs_testutil"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+# Helpers shared by the crates' integration tests, like Go's internal/testutil. A dev-dependency only.
+
+[lib]
+test = false
+doctest = false

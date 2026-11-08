@@ -107,7 +107,7 @@ fn api_build_outputs_match_cli_build() {
 #[test]
 #[cfg(all(target_os = "linux", target_env = "gnu"))]
 fn repeated_builds_memory() {
-    if !crate::isolated::in_child("api_memory_test::repeated_builds_memory") {
+    if !tsrs_testutil::in_child("api_memory_test::repeated_builds_memory") {
         return;
     }
     let dir = std::env::temp_dir().join(format!("tsrs-api-buildmem-{}", std::process::id()));
@@ -164,7 +164,7 @@ fn repeated_builds_memory() {
 #[test]
 #[cfg(all(target_os = "linux", target_env = "gnu"))]
 fn failed_builds_free_their_orchestrator() {
-    if !crate::isolated::in_child("api_memory_test::failed_builds_free_their_orchestrator") {
+    if !tsrs_testutil::in_child("api_memory_test::failed_builds_free_their_orchestrator") {
         return;
     }
     let dir = std::env::temp_dir().join(format!("tsrs-api-failedbuild-{}", std::process::id()));

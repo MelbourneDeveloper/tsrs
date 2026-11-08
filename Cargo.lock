@@ -971,6 +971,7 @@ dependencies = [
  "tsrs_printer",
  "tsrs_project",
  "tsrs_scanner",
+ "tsrs_testutil",
  "tsrs_tsoptions",
  "tsrs_vfs",
 ]
@@ -1088,6 +1089,7 @@ dependencies = [
  "tsrs_execute",
  "tsrs_lint",
  "tsrs_lsp",
+ "tsrs_testutil",
  "tsrs_vfs",
 ]
 
@@ -1111,6 +1113,7 @@ dependencies = [
  "tsrs_scanner",
  "tsrs_sourcemap",
  "tsrs_spanmap",
+ "tsrs_testutil",
  "tsrs_transformers",
  "tsrs_tsoptions",
  "tsrs_vfs",
@@ -1248,6 +1251,7 @@ dependencies = [
  "libc",
  "rustc-hash",
  "tsrs_core",
+ "tsrs_testutil",
 ]
 
 [[package]]
@@ -1278,6 +1282,7 @@ dependencies = [
  "tsrs_diagnostics",
  "tsrs_module",
  "tsrs_parser",
+ "tsrs_testutil",
  "tsrs_tsoptions",
  "tsrs_vfs",
  "xxhash-rust",
@@ -1514,6 +1519,10 @@ dependencies = [
  "tsrs_tsoptions",
  "tsrs_vfs",
 ]
+
+[[package]]
+name = "tsrs_testutil"
+version = "0.23.0"
 
 [[package]]
 name = "tsrs_thread_sanitizer"

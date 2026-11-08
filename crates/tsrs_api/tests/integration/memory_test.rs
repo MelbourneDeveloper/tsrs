@@ -34,7 +34,7 @@ fn create_program(s: &tsrs_api::Session, roots: &[String], options: &str) -> (u6
 /// and releasing snapshots repeatedly must not accumulate them.
 #[test]
 fn released_snapshots_free_program_and_emit_memory() {
-    if !crate::isolated::in_child("memory_test::released_snapshots_free_program_and_emit_memory") {
+    if !tsrs_testutil::in_child("memory_test::released_snapshots_free_program_and_emit_memory") {
         return;
     }
     let dir = TempDir::new("snaploop");
@@ -67,9 +67,8 @@ fn released_snapshots_free_program_and_emit_memory() {
 /// program data of a full build was freed with its base region).
 #[test]
 fn create_and_release_snapshot_cycles_do_not_accumulate() {
-    if !crate::isolated::in_child(
-        "memory_test::create_and_release_snapshot_cycles_do_not_accumulate",
-    ) {
+    if !tsrs_testutil::in_child("memory_test::create_and_release_snapshot_cycles_do_not_accumulate")
+    {
         return;
     }
     let dir = TempDir::new("snapcycles");
@@ -102,7 +101,7 @@ fn create_and_release_snapshot_cycles_do_not_accumulate() {
 /// Each transpile frees its scratch region and program: repeated calls stay correct and memory stays flat.
 #[test]
 fn repeated_transpile_reclaims_scratch_memory() {
-    if !crate::isolated::in_child("memory_test::repeated_transpile_reclaims_scratch_memory") {
+    if !tsrs_testutil::in_child("memory_test::repeated_transpile_reclaims_scratch_memory") {
         return;
     }
     let dir = TempDir::new("tmloop");
@@ -135,7 +134,7 @@ fn repeated_transpile_reclaims_scratch_memory() {
 /// and the file loader's project reference mapper and hosts. A retained snapshot sharing a file stays intact.
 #[test]
 fn failed_program_builds_release_their_files() {
-    if !crate::isolated::in_child("memory_test::failed_program_builds_release_their_files") {
+    if !tsrs_testutil::in_child("memory_test::failed_program_builds_release_their_files") {
         return;
     }
     let dir = TempDir::new("failedbuilds");
@@ -196,9 +195,8 @@ fn failed_program_builds_release_their_files() {
 /// arena. Regressed in #655.
 #[test]
 fn repeated_resolve_module_name_reclaims_scratch_memory() {
-    if !crate::isolated::in_child(
-        "memory_test::repeated_resolve_module_name_reclaims_scratch_memory",
-    ) {
+    if !tsrs_testutil::in_child("memory_test::repeated_resolve_module_name_reclaims_scratch_memory")
+    {
         return;
     }
     let dir = TempDir::new("rmloop");

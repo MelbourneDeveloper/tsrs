@@ -14,7 +14,7 @@ use tsrs_incremental::{
 // runs in its own process because it sets the process-wide fast mode and checker history.
 #[test]
 fn in_memory_interface_diagnostics_preserve_first_declaration_across_cache_policies() {
-    if !crate::isolated::in_child(
+    if !tsrs_testutil::in_child(
         "merged_interface::in_memory_interface_diagnostics_preserve_first_declaration_across_cache_policies",
     ) {
         return;

@@ -26,6 +26,7 @@ bitflags.workspace = true
 xxhash-rust.workspace = true
 
 [dev-dependencies]
+tsrs_testutil.workspace = true
 tsrs_parser.workspace = true
 
 [lib]

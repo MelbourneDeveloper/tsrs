@@ -12,8 +12,6 @@ mod checker_test;
 mod common;
 mod config_memory_test;
 mod config_test;
-#[cfg(all(target_os = "linux", target_env = "gnu"))]
-mod isolated;
 mod memory_test;
 mod merged_interface_test;
 mod module_resolution_test;

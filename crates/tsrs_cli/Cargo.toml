@@ -28,6 +28,9 @@ noembed = ["tsrs_vfs/noembed"]
 # blocks; mimalloc's memory looks like one long-lived region to them).
 system-alloc = []
 
+[dev-dependencies]
+tsrs_testutil.workspace = true
+
 [lib]
 test = false
 doctest = false

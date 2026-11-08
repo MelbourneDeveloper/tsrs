@@ -29,8 +29,8 @@ Do not add unit tests: no `#[test]`, `#[cfg(test)]` or `cfg!(test)` in `src`. Us
 - Keep `test = false` on every `[lib]` and `[[bin]]`: `cargo test` then builds no unit-test harness, and a unit test
   would never run (`tools/lint/source.mjs` rejects one).
 - When a test needs internals, make the item `pub` instead of adding a test-only path.
-- A test that changes process-wide state (fast mode, checker history, RSS) runs alone in a child process, as
-  `isolated::in_child` does in the tsrs_fswatch, tsrs_incremental, tsrs_api and tsrs_cli tests.
+- A test that changes process-wide state (fast mode, checker history, RSS) runs alone in a child process through
+  `tsrs_testutil::in_child`, as the tsrs_fswatch, tsrs_incremental, tsrs_api and tsrs_cli tests do.
 - tsrs_wasm keeps its unit tests: it is cdylib only, so no integration test can link it.
 
 ## Lint

@@ -1,5 +1,4 @@
 use std::fmt::Write as _;
-use std::process::Command;
 use std::sync::Arc;
 
 use tsrs_compiler::{
@@ -9,27 +8,6 @@ use tsrs_core::P;
 use tsrs_core::tspath::Path;
 use tsrs_tsoptions::{self as tsoptions, ParseConfigHost};
 use tsrs_vfs::{FS, vfstest};
-
-const CHILD: &str = "TSRS_ARENA_LEAK_889_TEST";
-
-/// Runs `test` alone in a child process of this integration test binary.
-/// Returns true in the child, false in the parent after the child passes.
-fn in_child(test: &str) -> bool {
-    if std::env::var_os(CHILD).is_some_and(|name| name == test) {
-        return true;
-    }
-    let output = Command::new(std::env::current_exe().unwrap())
-        .args(["--exact", test, "--nocapture", "--test-threads=1"])
-        .envs(std::env::vars())
-        .env("RAYON_NUM_THREADS", "2")
-        .env(CHILD, test)
-        .output()
-        .unwrap();
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    assert!(output.status.success(), "{stdout}{}", String::from_utf8_lossy(&output.stderr));
-    assert!(stdout.contains("1 passed;"), "the child must run the isolated case:\n{stdout}");
-    false
-}
 
 struct ParseConfigHostImpl {
     fs: Arc<dyn FS>,
@@ -89,7 +67,7 @@ fn make_files(flipped: bool) -> Vec<(&'static str, &'static str)> {
 #[test]
 fn update_program_full_rebuild_uses_regions() {
     let test_name = "arena_leak_889_test::update_program_full_rebuild_uses_regions";
-    if !in_child(test_name) {
+    if !tsrs_testutil::in_child_with_env(test_name, &[("RAYON_NUM_THREADS", "2")]) {
         return;
     }
 

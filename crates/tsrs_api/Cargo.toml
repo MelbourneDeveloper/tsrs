@@ -33,6 +33,7 @@ tsrs_api_codec.workspace = true
 tsrs_api_transport.workspace = true
 
 [dev-dependencies]
+tsrs_testutil.workspace = true
 serde_json.workspace = true
 
 [lib]
